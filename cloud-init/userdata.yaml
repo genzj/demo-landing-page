@@ -1,0 +1,16 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+packages:
+  - git
+
+runcmd:
+  - [ sh, -c, "amazon-linux-extras install -y nginx1" ]
+  - systemctl enable nginx.service
+  - git clone https://github.com/genzj/demo-landing-page.git /tmp/landing-page
+  - cp /tmp/landing-page/nginx/default.d.landingpage.conf /etc/nginx/default.d/landingpage.conf
+  - cp /tmp/landing-page/index.html /usr/share/nginx/html/index.html
+  - [ sh, -c, "sed -i 's/----IPADDRESS----/'$(ip route get 1 | head -1 | cut -f 7 -s -d' ')'/g' /usr/share/nginx/html/index.html"]
+
+  - systemctl restart nginx.service
